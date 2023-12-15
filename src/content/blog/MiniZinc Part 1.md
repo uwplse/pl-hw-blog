@@ -1,3 +1,9 @@
+---
+title: Required
+description: Required
+pubDate: 2023-12-15
+---
+
 # Part 1: Hardware Design via Constraint Satisfaction, An Intro to MiniZinc!
 At the [Formal Methods in Computer Aided Design](https://fmcad.org/FMCAD23/) (FMCAD) 2023 Conference, [Prof. Peter Stuckey](https://people.eng.unimelb.edu.au/pstuckey/) from Monash University in Melbourne gave a great tutorial on [MiniZinc](https://www.minizinc.org/). MiniZinc is a language that can be used to express constraint satisfaction and optimization problems in a higher-level language. This objective is similar to that of [Rosette](https://emina.github.io/rosette/) that aims to express program synthesis challenges at a higher level of abstraction. During the tutorial, Prof. Stuckey showed how MiniZinc could be used to find a hardware circuit implementing constant multiplication. This got me interested, so I started to hack. This blog post will describe my first hacking with MiniZinc and how I used it to solve some simple hardware design challenges which I often encounter at Intel.  
 
@@ -25,7 +31,7 @@ $$7x=4x+2x+x=8x-x$$
 The first option uses two additions whilst the second option uses only one subtraction. This is relevant because in circuit design, multiplication by a power of two can be computed for free, therefore only the add/subtract correspond to a non-zero hardware cost. As a result option two is the optimal circuit implementation.
 Let’s look at my first attempt to solve this problem using MiniZinc. 
 
-![minizinc_screenshot_csd](minizinc_screenshot_csd.png)
+![minizinc_screenshot_csd](./minizinc_screenshot_csd.png)
 
 Firstly, in lines 1-4 we declare the constant multiplicand and the largest power of two we need, in this case $8(=2^3)$. We then set the range of possible values that $x$ can take in line 6. In MiniZinc terminology this corresponds to the data of the problem. Next, in line 9, we define 4 variables, $row[0],…,row[3]$, each constrained to take a value in $\{-1,0,1\}$. The objective is to find an optimal assignment for these variables. In line 12, we define a constraint:
 

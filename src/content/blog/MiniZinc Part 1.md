@@ -54,10 +54,15 @@ For no reason other than curiosity I replaced line 15 in the above code, to ask 
 Solving this problem, MiniZinc provides the following factorizations for $7x$.
 
 $$7x=8x-4x+2x+x$$
-What about 99?
+
+What about $99$?
+
 $$99x=128x-64x+32x+16x-8x-4x-2x+x$$
+
 Notice that MiniZinc assigns a non-zeros coefficient to every power of two. This provokes the following question, is this always true, or more formally:
+
 Given odd $k\in \mathbb{N}$, let $n=\lceil \log_2 k \rceil$,
+
 $\exists y_0,y_1,…,y_{n-1}∈\{-1,1\}$, such that $k =\sum_{i=0}^{n-1} 2^i\times y_i$
 
 
@@ -66,9 +71,12 @@ It’s not obvious to me that this is true, so I asked some colleagues and we se
 **Proof**: let $y_i=2y_i'-1$, such that $y_i'∈\{0,1\}$, substitute this in:
 
 $$\sum_{i=0}^{n-1}2^i\times y_i=\sum_{i=0}^{n-1}2^i\times (2y_i'-1) =2\sum_{i=0}^{n-1}2^i\times y _i' - \sum_{i=0}^{n-1} 2^i$$ 
+
 Since we can represent all positive integers in binary and $k$ is odd, $\exists y_i'$ such that:
 
-$$\frac{1}{2}\left (k+\sum_{i=0}^{n-1}2^i\right) =\sum_{i=0}^{n-1}2^i\times y_i'\Rightarrow k=2\sum_{i=0}^{n-1}2^i\times y _i' - \sum_{i=0}^{n-1} 2^i=\sum_{i=0}^{n-1}2^i\times y_i$$ 
+$$\frac{1}{2}\left (k+\sum_{i=0}^{n-1}2^i\right) =\sum_{i=0}^{n-1}2^i\times y_i'\Rightarrow$$
+
+$$k=2\sum_{i=0}^{n-1}2^i\times y _i' - \sum_{i=0}^{n-1} 2^i=\sum_{i=0}^{n-1}2^i\times y_i$$ 
 QED.
 
 This is a nice result and it was interesting to observe how easily we can deploy an automated tool like MiniZinc to ask these different questions! Unfortunately (to the best of my knowledge), MiniZinc cannot prove this result for us but it allowed us to ask questions leading to this proof. Perhaps a future blog post can investigate verification tools to prove such a result.

@@ -5,6 +5,8 @@ pubDate: 'Dec 16 2023'
 heroImage: '/MiniZn_logo.png'
 ---
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.css" integrity="sha384-WsHMgfkABRyG494OmuiNmkAOk8nhO1qE+Y6wns6v+EoNoTNxrWxYpl5ZYWFOLPCM" crossorigin="anonymous">
+
 # Part 1: Hardware Design via Constraint Satisfaction, An Intro to MiniZinc!
 At the [Formal Methods in Computer Aided Design](https://fmcad.org/FMCAD23/) (FMCAD) 2023 Conference, [Prof. Peter Stuckey](https://people.eng.unimelb.edu.au/pstuckey/) from Monash University in Melbourne gave a great tutorial on [MiniZinc](https://www.minizinc.org/). MiniZinc is a language that can be used to express constraint satisfaction and optimization problems in a higher-level language. This objective is similar to that of [Rosette](https://emina.github.io/rosette/) that aims to express program synthesis challenges at a higher level of abstraction. During the tutorial, Prof. Stuckey showed how MiniZinc could be used to find a hardware circuit implementing constant multiplication. This got me interested, so I started to hack. This blog post will describe my first hacking with MiniZinc and how I used it to solve some simple hardware design challenges which I often encounter at Intel.  
 
@@ -55,11 +57,8 @@ $$7x=8x-4x+2x+x$$
 What about 99?
 $$99x=128x-64x+32x+16x-8x-4x-2x+x$$
 Notice that MiniZinc assigns a non-zeros coefficient to every power of two. This provokes the following question, is this always true, or more formally:
-$$
-\text{Given odd }k\in \mathbb{N},\text{let }n=\lceil log_2⁡k\rceil,\\
-\exists y_0,y_1,…,y_{n-1}∈\{-1,1\}
-\text{, such that } k =\sum_{i=0}^{n-1} 2^i\times y_i 
-$$
+Given odd $k\in \mathbb{N}$, let $n=\lceil \log_2 k \rceil$,
+$\exists y_0,y_1,…,y_{n-1}∈\{-1,1\}$, such that $k =\sum_{i=0}^{n-1} 2^i\times y_i$
 
 
 It’s not obvious to me that this is true, so I asked some colleagues and we set about proving the result. The neatest proof has so far come from [Prof. George Constantinides](https://cas.ee.ic.ac.uk/people/gac1/).

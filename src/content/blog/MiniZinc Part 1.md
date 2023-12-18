@@ -2,10 +2,10 @@
 title: 'Part 1: Hardware Design via Constraint Satisfaction'
 description: 'A short introduction to the MiniZinc language and my first experience applying it to hardware design problems'
 pubDate: 'Dec 16 2023'
-heroImage: '/MiniZn_logo.png'
+heroImage: '/pl-hw-blog/MiniZn_logo.png'
 ---
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.css" integrity="sha384-WsHMgfkABRyG494OmuiNmkAOk8nhO1qE+Y6wns6v+EoNoTNxrWxYpl5ZYWFOLPCM" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.1/dist/katex.css" integrity="sha384-WsHMgfkABRyG494OmuiNmkAOk8nhO1qE+Y6wns6v+EoNoTNxrWxYpl5ZYWFOLPCM" crossorigin="anonymous"/>
 
 # Part 1: Hardware Design via Constraint Satisfaction, An Intro to MiniZinc!
 At the [Formal Methods in Computer Aided Design](https://fmcad.org/FMCAD23/) (FMCAD) 2023 Conference, [Prof. Peter Stuckey](https://people.eng.unimelb.edu.au/pstuckey/) from Monash University in Melbourne gave a great tutorial on [MiniZinc](https://www.minizinc.org/). MiniZinc is a language that can be used to express constraint satisfaction and optimization problems in a higher-level language. This objective is similar to that of [Rosette](https://emina.github.io/rosette/) that aims to express program synthesis challenges at a higher level of abstraction. During the tutorial, Prof. Stuckey showed how MiniZinc could be used to find a hardware circuit implementing constant multiplication. This got me interested, so I started to hack. This blog post will describe my first hacking with MiniZinc and how I used it to solve some simple hardware design challenges which I often encounter at Intel.  
@@ -19,37 +19,37 @@ MiniZinc is really useful for two reasons. Firstly, it acts a bit like a compile
 ## Getting Started
 MiniZinc is nicely packaged with its own IDE, meaning there’s no need to install a bunch of dependencies (at least on windows). Opening up the IDE we get a simple example to start from. There’s an interface that lets you select and run any of the solvers that come packaged with MiniZinc e.g. Gecode and Coin-BC. It also supports all the usual text editor features. As a starting point I copied the [map colouring](https://www.minizinc.org/doc-2.7.6/en/modelling.html) MiniZinc model (.mzn) from the tutorial in the [documentation](https://www.minizinc.org/doc-2.7.6/en/index.html). Just hitting run, the MiniZinc compiler takes over and generates a FlatZinc model (.fzn). This FlatZinc model can then be processed by the solvers which hopefully find a result. Trying this out on the Australian map colouring problem we discover that we can colour the states of Australia such that no bordering states are the same colour, using only three colours. Image credit Colorado State University [CSP Lecture Notes](https://www.cs.colostate.edu/~howe/cs440/csroo/yr2015fa/more_progress/08_csp2015.pdf). 
 
-![australian_map_colouring](/australian_map_colouring.png)
+![australian_map_colouring](/pl-hw-blog/australian_map_colouring.png)
 
 ## Hardware Time: Constant Multiplication
 Prof. Stuckey demonstrated how MiniZinc could be used to design a circuit constant multiplication e.g. $7x$, where $x$ is a variable input. This may seem like a trivial problem, but in low-level circuit design, we are restricted to only the following operations: addition, subtraction and multiplication by powers of two (a shift operator). This gives rise to several ways to compute $7x$.
 
 $$7x=4x+2x+x=8x-x$$
 
-![dfg1](/dfg1.png)
+![dfg1](/pl-hw-blog/dfg1.png)
 
 The first option uses two additions whilst the second option uses only one subtraction. This is relevant because in circuit design, multiplication by a power of two can be computed for free, therefore only the add/subtract correspond to a non-zero hardware cost. As a result option two is the optimal circuit implementation.
 Let’s look at my first attempt to solve this problem using MiniZinc. 
 
-![minizinc_screenshot_csd](/minizinc_screenshot_csd.png)
+![minizinc_screenshot_csd](/pl-hw-blog/minizinc_screenshot_csd.png)
 
 Firstly, in lines 1-4 we declare the constant multiplicand and the largest power of two we need, in this case $8(=2^3)$. We then set the range of possible values that $x$ can take in line 6. In MiniZinc terminology this corresponds to the data of the problem. Next, in line 9, we define 4 variables, $row[0],…,row[3]$, each constrained to take a value in $\{-1,0,1\}$. The objective is to find an optimal assignment for these variables. In line 12, we define a constraint:
 
 $$\forall x\in[0,255], 7x = \sum_{i=0}^7 2^i \times x \times row[i] $$
 
-![dfg2](/dfg2.png)
+![dfg2](/pl-hw-blog/dfg2.png)
 
 Line 12 uses two of MiniZinc’s “generator expressions”, forall and sum, that allow us to concisely encode the mathematical formula above. At this point we have a fully defined problem. In line 15 we call solve and add an objective, to minimize $\sum_{i=0}^3|row[i]|$.
 
 Hitting run in the MiniZinc IDE, we get the following output in 0.496 seconds that corresponds to $7x=8x-x$:
 
-![minizincsolution](/minizinc_solution.png)
+![minizincsolution](/pl-hw-blog/minizinc_solution.png)
             
 The generated circuit corresponds to a known representation, [canonical signed digit](https://www.allaboutcircuits.com/technical-articles/an-introduction-to-canonical-signed-digit-representation/), where each digit can be $\pm 1$ or $0$ and we guarantee that no two adjacent digits can both be non-zero. I think this is a cool result, we can use MiniZinc to reproduce known results, in just a few lines of code!
 
 For no reason other than curiosity I replaced line 15 in the above code, to ask a different question!
 
-![minizincmaximize](/minizinc_maximize.png)
+![minizincmaximize](/pl-hw-blog/minizinc_maximize.png)
 
 Solving this problem, MiniZinc provides the following factorizations for $7x$.
 
